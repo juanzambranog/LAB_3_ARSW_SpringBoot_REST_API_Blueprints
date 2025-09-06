@@ -84,13 +84,78 @@ En este ejercicio se va a construír un modelo de clases para la capa lógica de
 	* Agregar la configuración de Spring.
 	* Configurar la aplicación -mediante anotaciones- para que el esquema de persistencia sea inyectado al momento de ser creado el bean 'BlueprintServices'.
 
+**Para habilitar la inyección de dependencias se agregaron las librerías de Spring Core y Spring Context en el pom.xml.**
+
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
+        <version>4.2.4.RELEASE</version>
+    </dependency>
+
+
+**Esto permitió el uso de anotaciones como @Service, @Component, @Autowired, etc.**
+
+**Se creó la clase de configuración con anotaciones:**
+
+![img.png](img/img-11.png)
+
+---
+**@Configuration: indica que es una clase de configuración.**
+
+---
+**@ComponentScan: le dice a Spring en qué paquete buscar los beans (@Service, @Component).**
+
+---
+**Se configuró BlueprintsServices para que reciba automáticamente su dependencia de persistencia**
+    ![img_1.png](img/img_12.png)
 
 2. Complete los operaciones getBluePrint() y getBlueprintsByAuthor(). Implemente todo lo requerido de las capas inferiores (por ahora, el esquema de persistencia disponible 'InMemoryBlueprintPersistence') agregando las pruebas correspondientes en 'InMemoryPersistenceTest'.
+---
+   **Se implementaron usando el esquema de persistencia ya existente (InMemoryBlueprintPersistence).**
+    ![img_2.png](img/img_13.png)
+---
+**Tests agregados en InMemoryPersistenceTest:**
 
+![img_3.png](img/img_14.png)
+---
 3. Haga un programa en el que cree (mediante Spring) una instancia de BlueprintServices, y rectifique la funcionalidad del mismo: registrar planos, consultar planos, registrar planos específicos, etc.
+---
+**Se creó un main donde Spring instancia el servicio automáticamente y se prueban operaciones:**
 
+![img_4.png](img/img_15.png)
+
+---
 4. Se quiere que las operaciones de consulta de planos realicen un proceso de filtrado, antes de retornar los planos consultados. Dichos filtros lo que buscan es reducir el tamaño de los planos, removiendo datos redundantes o simplemente submuestrando, antes de retornarlos. Ajuste la aplicación (agregando las abstracciones e implementaciones que considere) para que a la clase BlueprintServices se le inyecte uno de dos posibles 'filtros' (o eventuales futuros filtros). No se contempla el uso de más de uno a la vez:
 	* (A) Filtrado de redundancias: suprime del plano los puntos consecutivos que sean repetidos.
 	* (B) Filtrado de submuestreo: suprime 1 de cada 2 puntos del plano, de manera intercalada.
+---
+**Se definio la interfaz (BluePrintFilter) y las dos implementaciones de los filtros (RedundancyFilter y SubsamplingFilter).**
+
+![img_5.png](img/img_16.png)
+
+---
+
+**RedundancyFilter**
+
+![img_6.png](img/img_6.png)
+
+---
+
+**SubsamplingFilter**
+
+![img_7.png](img/img_7.png)
+
 
 5. Agrege las pruebas correspondientes a cada uno de estos filtros, y pruebe su funcionamiento en el programa de prueba, comprobando que sólo cambiando la posición de las anotaciones -sin cambiar nada más-, el programa retorne los planos filtrados de la manera (A) o de la manera (B). 
+
+---
+
+**Se agrego la clase FiltersTest para hacer la respectivas pruebas a RedundancyFilter y SubsamplingFilter.**
+
+![img_8.png](img/img_8.png)
+
+![img_9.png](img/img_9.png)
+
+---
+
+![img_10.png](img/img_10.png)

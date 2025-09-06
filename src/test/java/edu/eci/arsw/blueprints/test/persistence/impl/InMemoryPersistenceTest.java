@@ -68,7 +68,54 @@ public class InMemoryPersistenceTest {
                 
         
     }
+/*documentar*/
+    @Test
+    public void getBlueprintsByAuthorTest() throws Exception {
+        InMemoryBlueprintPersistence ibpp = new InMemoryBlueprintPersistence();
+
+        Point[] pts1 = new Point[]{new Point(0, 0), new Point(10, 10)};
+        Point[] pts2 = new Point[]{new Point(20, 20), new Point(30, 30)};
+        Point[] pts3 = new Point[]{new Point(40, 40), new Point(50, 50)};
+
+        Blueprint bp1 = new Blueprint("alice", "plano1", pts1);
+        Blueprint bp2 = new Blueprint("alice", "plano2", pts2);
+        Blueprint bp3 = new Blueprint("bob", "plano3", pts3);
+
+        ibpp.saveBlueprint(bp1);
+        ibpp.saveBlueprint(bp2);
+        ibpp.saveBlueprint(bp3);
+
+        assertEquals("Alice should have 2 blueprints",
+                2, ibpp.getBlueprintsByAuthor("alice").size());
+        assertEquals("Bob should have 1 blueprint",
+                1, ibpp.getBlueprintsByAuthor("bob").size());
+    }
+
+    @Test(expected = BlueprintNotFoundException.class)
+    public void getBlueprintsByAuthorNotFoundTest() throws Exception {
+        InMemoryBlueprintPersistence ibpp = new InMemoryBlueprintPersistence();
+        ibpp.getBlueprintsByAuthor("nonexistent");
+    }
+
+    @Test
+    public void getAllBlueprintsTest() throws Exception {
+        InMemoryBlueprintPersistence ibpp = new InMemoryBlueprintPersistence();
+
+        Point[] pts1 = new Point[]{new Point(0, 0), new Point(10, 10)};
+        Point[] pts2 = new Point[]{new Point(20, 20), new Point(30, 30)};
+
+        Blueprint bp1 = new Blueprint("alice", "plano1", pts1);
+        Blueprint bp2 = new Blueprint("bob", "plano2", pts2);
+
+        ibpp.saveBlueprint(bp1);
+        ibpp.saveBlueprint(bp2);
+
+        assertEquals("Should return all stored blueprints",
+                3, ibpp.getAllBlueprints().size());
+    }
 
 
-    
+
+
 }
+

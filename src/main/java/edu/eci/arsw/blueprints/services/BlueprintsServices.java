@@ -4,14 +4,18 @@
  * and open the template in the editor.
  */
 package edu.eci.arsw.blueprints.services;
+import edu.eci.arsw.blueprints.filter.BluePrintFilter;
+import edu.eci.arsw.blueprints.filter.SubsamplingFilter;
+import edu.eci.arsw.blueprints.filter.RedundancyFilter;
 
 import edu.eci.arsw.blueprints.model.Blueprint;
-import edu.eci.arsw.blueprints.model.Point;
 import edu.eci.arsw.blueprints.persistence.BlueprintNotFoundException;
+import edu.eci.arsw.blueprints.persistence.BlueprintPersistenceException;
 import edu.eci.arsw.blueprints.persistence.BlueprintsPersistence;
-import java.util.LinkedHashMap;
-import java.util.Map;
+
+import java.util.HashSet;
 import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,37 +25,73 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class BlueprintsServices {
-   
+
+    // Dependencia para la persistencia de planos
+    private final BlueprintsPersistence persistence;
+
+    // Dependencia para aplicar filtros
+    private final BluePrintFilter filter;
+
+    /**
+     * Constructor con inyección de dependencias.
+     * Recibe tanto el manejador de persistencia como el filtro que se desea usar.
+     */
     @Autowired
-    BlueprintsPersistence bpp=null;
-    
-    public void addNewBlueprint(Blueprint bp){
-        
+    public BlueprintsServices(BlueprintsPersistence persistence, BluePrintFilter filter) {
+        this.persistence = persistence;
+        this.filter = filter;
     }
-    
-    public Set<Blueprint> getAllBlueprints(){
-        return null;
-    }
-    
+
     /**
-     * 
-     * @param author blueprint's author
-     * @param name blueprint's name
-     * @return the blueprint of the given name created by the given author
-     * @throws BlueprintNotFoundException if there is no such blueprint
+     * Agrega un nuevo plano al sistema
+     * @param bp blueprint a registrar
+     * @throws BlueprintPersistenceException si ya existe o hay error en la persistencia
      */
-    public Blueprint getBlueprint(String author,String name) throws BlueprintNotFoundException{
-        throw new UnsupportedOperationException("Not supported yet."); 
+    public void addNewBlueprint(Blueprint bp) throws BlueprintPersistenceException {
+        persistence.saveBlueprint(bp);
     }
-    
+
     /**
-     * 
-     * @param author blueprint's author
-     * @return all the blueprints of the given author
-     * @throws BlueprintNotFoundException if the given author doesn't exist
+     * Retorna el blueprint de un autor y nombre específico, aplicando filtro.
+     * @param author autor del plano
+     * @param name nombre del plano
+     * @return el blueprint filtrado
+     * @throws BlueprintNotFoundException si no existe el plano
      */
-    public Set<Blueprint> getBlueprintsByAuthor(String author) throws BlueprintNotFoundException{
-        throw new UnsupportedOperationException("Not supported yet."); 
+    public Blueprint getBlueprint(String author, String name) throws BlueprintNotFoundException {
+        Blueprint bp = persistence.getBlueprint(author, name);
+        return filter.filter(bp);
     }
-    
+
+    /**
+     * Retorna todos los blueprints de un autor, aplicando el filtro correspondiente.
+     * @param author nombre del autor
+     * @return conjunto de planos filtrados
+     * @throws BlueprintNotFoundException si no existen planos de ese autor
+     */
+    public Set<Blueprint> getBlueprintsByAuthor(String author) throws BlueprintNotFoundException {
+        Set<Blueprint> original = persistence.getBlueprintsByAuthor(author);
+        Set<Blueprint> filtered = new HashSet<>();
+        for (Blueprint bp : original) {
+            filtered.add(filter.filter(bp));
+        }
+        return filtered;
+    }
+
+    /**
+     * Retorna todos los blueprints del sistema, aplicando filtro.
+     * @return conjunto de planos filtrados
+     */
+    public Set<Blueprint> getAllBlueprints() {
+        Set<Blueprint> original = persistence.getAllBlueprints();
+        Set<Blueprint> filtered = new HashSet<>();
+        for (Blueprint bp : original) {
+            filtered.add(filter.filter(bp));
+        }
+        return filtered;
+    }
 }
+
+
+
+
